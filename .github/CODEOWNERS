@@ -1,0 +1,22 @@
+# Code Owners for Bus Sénégal Platform
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owner
+* @Diags
+
+# Backend Spring Boot
+/senegal-bus-backend/ @Diags
+
+# Frontend Next.js
+/bus-senegal-frontend/ @Diags
+
+# Kubernetes manifests
+/k8s/ @Diags
+
+# CI/CD
+/.github/ @Diags
+
+# Documentation
+/docs/ @Diags
+*.md @Diags
+

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bus-senegal-frontend-svc
+  labels:
+    app: bus-senegal-frontend
+    tier: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: bus-senegal-frontend
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: http
+

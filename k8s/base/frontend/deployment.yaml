@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bus-senegal-frontend
+  labels:
+    app: bus-senegal-frontend
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bus-senegal-frontend
+  template:
+    metadata:
+      labels:
+        app: bus-senegal-frontend
+        tier: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: diags/bus-senegal-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: NEXT_PUBLIC_API_URL
+          value: "http://api.bus-senegal.local"
+        - name: NEXTAUTH_URL
+          value: "http://bus-senegal-frontend.local"
+        - name: NEXTAUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: nextauth-secret
+              key: secret
+        - name: KEYCLOAK_CLIENT_ID
+          value: "bus-senegal-frontend"
+        - name: KEYCLOAK_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-secret
+              key: client-secret
+        - name: KEYCLOAK_ISSUER
+          value: "http://keycloak-svc:8080/realms/bus-senegal"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+

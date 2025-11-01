@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  labels:
+    app: keycloak
+    tier: auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+        tier: auth
+    spec:
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:23.0
+        args:
+        - "start-dev"
+        - "--import-realm"
+        env:
+        - name: KEYCLOAK_ADMIN
+          value: "admin"
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-secret
+              key: admin-password
+        - name: KC_DB
+          value: "postgres"
+        - name: KC_DB_URL
+          value: "jdbc:postgresql://postgres-svc:5432/bus_senegal_prod"
+        - name: KC_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: username
+        - name: KC_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: password
+        - name: KC_HOSTNAME_STRICT
+          value: "false"
+        - name: KC_HTTP_ENABLED
+          value: "true"
+        - name: KC_PROXY
+          value: "edge"
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        volumeMounts:
+        - name: keycloak-realm
+          mountPath: /opt/keycloak/data/import
+        readinessProbe:
+          httpGet:
+            path: /realms/master
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /realms/master
+            port: 8080
+          initialDelaySeconds: 90
+          periodSeconds: 30
+      volumes:
+      - name: keycloak-realm
+        configMap:
+          name: keycloak-realm-config
+

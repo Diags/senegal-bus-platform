@@ -1,0 +1,153 @@
+spring:
+  application:
+    name: senegal-bus-backend
+  profiles:
+    active: dev
+
+  # Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# OpenAPI / Swagger Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    enabled: true
+
+# Payment Providers Configuration
+payment:
+  orange-money:
+    enabled: true
+    api-url: https://api-sandbox.orangemoney.sn
+    merchant-code: ${ORANGE_MONEY_MERCHANT_CODE}
+    merchant-key: ${ORANGE_MONEY_MERCHANT_KEY}
+    api-key: ${ORANGE_MONEY_API_KEY}
+    api-secret: ${ORANGE_MONEY_API_SECRET}
+    callback-url: ${APP_URL}/api/payments/webhook/orange-money
+    return-url: ${APP_URL}/bookings/confirm
+    timeout-seconds: 30
+  wave:
+    enabled: true
+    api-url: https://api.wave.com
+    api-key: ${WAVE_API_KEY}
+    api-secret: ${WAVE_API_SECRET}
+    merchant-id: ${WAVE_MERCHANT_ID}
+    callback-url: ${APP_URL}/api/payments/webhook/wave
+    return-url: ${APP_URL}/bookings/confirm
+    timeout-seconds: 30
+  free-money:
+    enabled: true
+    api-url: https://api.free.sn
+    merchant-id: ${FREE_MONEY_MERCHANT_ID}
+    api-key: ${FREE_MONEY_API_KEY}
+    api-secret: ${FREE_MONEY_API_SECRET}
+    callback-url: ${APP_URL}/api/payments/webhook/free-money
+    timeout-seconds: 30
+  paytech:
+    enabled: true
+    api-url: https://paytech.sn/api
+    api-key: ${PAYTECH_API_KEY}
+    api-secret: ${PAYTECH_API_SECRET}
+    merchant-id: ${PAYTECH_MERCHANT_ID}
+    callback-url: ${APP_URL}/api/payments/webhook/paytech
+    timeout-seconds: 30
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bus_senegal_dev
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/bus-senegal
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    root: INFO
+    com.bus.senegal: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 10
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI}
+
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    root: INFO
+    com.bus.senegal: INFO
+    org.springframework.security: WARN
+

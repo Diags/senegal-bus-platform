@@ -1,0 +1,161 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'bus-senegal-frontend/**'
+      - '.github/workflows/frontend.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'bus-senegal-frontend/**'
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './bus-senegal-frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./bus-senegal-frontend
+        run: npm ci
+
+      - name: Run linter
+        working-directory: ./bus-senegal-frontend
+        run: npm run lint
+
+      - name: Run unit tests
+        working-directory: ./bus-senegal-frontend
+        run: npm test -- --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./bus-senegal-frontend/coverage/coverage-final.json
+          flags: frontend
+          name: frontend-coverage
+          fail_ci_if_error: false
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './bus-senegal-frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./bus-senegal-frontend
+        run: npm ci
+
+      - name: Build application
+        working-directory: ./bus-senegal-frontend
+        run: npm run build
+        env:
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'dummy-secret-for-build' }}
+          NEXTAUTH_URL: http://localhost:3000
+
+      - name: Upload build artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: ./bus-senegal-frontend/.next
+          retention-days: 7
+
+  e2e-test:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './bus-senegal-frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./bus-senegal-frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: ./bus-senegal-frontend
+        run: npx playwright install --with-deps
+
+      - name: Run E2E tests
+        working-directory: ./bus-senegal-frontend
+        run: npx playwright test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: ./bus-senegal-frontend/playwright-report
+          retention-days: 7
+
+  deploy-preview:
+    name: Deploy Preview (Vercel)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel (Preview)
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./bus-senegal-frontend
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+
+  deploy-production:
+    name: Deploy to Production (Vercel)
+    runs-on: ubuntu-latest
+    needs: [build, e2e-test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel (Production)
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./bus-senegal-frontend
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+
+

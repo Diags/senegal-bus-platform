@@ -1,0 +1,44 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///testdb
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/bus-senegal
+
+# Désactiver Actuator endpoints pour les tests
+management:
+  endpoints:
+    enabled-by-default: false
+
+# Configuration de test pour les paiements
+payment:
+  orange-money:
+    enabled: false
+    api-url: http://localhost:8888/orange-money
+  wave:
+    enabled: false
+    api-url: http://localhost:8888/wave
+  free-money:
+    enabled: false
+    api-url: http://localhost:8888/free-money
+  paytech:
+    enabled: true
+    api-url: http://localhost:8888/paytech
+
+logging:
+  level:
+    com.bus.senegal: DEBUG
+    org.springframework.security: DEBUG
+    org.testcontainers: INFO
+
+
