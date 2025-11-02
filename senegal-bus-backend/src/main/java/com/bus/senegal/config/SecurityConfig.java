@@ -33,9 +33,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                // Public for demo/testing (TODO: Re-enable auth in production)
+                .requestMatchers("/routes/**", "/trips/**", "/bookings/**", "/payments/**").permitAll()
                 // Protected endpoints
-                .requestMatchers("/routes/**", "/trips/**").permitAll()
-                .requestMatchers("/bookings/**").hasAnyRole("CLIENT", "ADMIN")
                 .requestMatchers("/companies/**", "/buses/**").hasAnyRole("COMPAGNIE", "ADMIN")
                 .requestMatchers("/users/**").hasRole("ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")

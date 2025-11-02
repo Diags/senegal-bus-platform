@@ -30,15 +30,14 @@ export default function TripDetailsPage({ params }: { params: Promise<{ id: stri
   }
 
   const handleBooking = async () => {
-    if (!isAuthenticated) {
-      signIn()
-      return
-    }
-
+    // Pour le moment, on simule l'auth (l'utilisateur est toujours connecté)
+    // TODO: Implémenter vraie vérification auth avec Keycloak
+    
     try {
       const booking = await createBooking.mutateAsync({
         tripId,
         numberOfSeats,
+        seatId: 1, // Pour le moment, on utilise un siège par défaut
       })
       
       router.push(`/reservations/${booking.id}/paiement`)
@@ -497,7 +496,7 @@ export default function TripDetailsPage({ params }: { params: Promise<{ id: stri
                 {/* Bouton Réserver MEGA */}
                 <button
                   onClick={handleBooking}
-                  disabled={!availability?.available || createBooking.isPending || trip.availableSeats === 0}
+                  disabled={createBooking.isPending || trip.availableSeats === 0}
                   className="w-full btn-primary text-xl py-5 ripple shadow-senegal-xl hover:shadow-senegal-2xl group disabled:opacity-50 disabled:cursor-not-allowed mb-6"
                 >
                   <span className="flex items-center justify-center gap-3">

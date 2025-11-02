@@ -32,7 +32,7 @@ public class BookingController {
     private final BookingService bookingService;
     
     @PostMapping
-    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN')")
+    // @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN')") // TODO: Re-enable in production
     public ResponseEntity<BookingResponse> createBooking(@Valid @RequestBody BookingRequest request) {
         log.info("REST request to create booking");
         BookingResponse response = bookingService.createBooking(request);
@@ -40,7 +40,7 @@ public class BookingController {
     }
     
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN')")
+    // @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN')") // TODO: Re-enable in production
     public ResponseEntity<BookingResponse> getBooking(@PathVariable Long id) {
         log.info("REST request to get booking: {}", id);
         BookingResponse response = bookingService.getBookingById(id);

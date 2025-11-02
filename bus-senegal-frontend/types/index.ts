@@ -70,8 +70,8 @@ export interface Booking {
 
 export interface CreateBookingRequest {
   tripId: number
-  seatId: number
-  numberOfSeats?: number
+  seatId?: number
+  numberOfSeats: number
 }
 
 // Payment Types
