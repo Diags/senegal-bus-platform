@@ -1,26 +1,259 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   🇸🇳 Thème Bus Sénégal - Couleurs du Drapeau
+   ═══════════════════════════════════════════════════════════════════════════
+   Vert  : #00843D (croissance, espoir)
+   Jaune : #FFF200 (richesse, soleil)
+   Rouge : #E01E24 (courage, détermination)
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Couleurs de base */
+  --background: #FAFAFA;
+  --foreground: #1A1A1A;
+  
+  /* Couleurs Sénégal (drapeau) */
+  --senegal-green: #00843D;
+  --senegal-green-light: #00A84D;
+  --senegal-green-dark: #006B32;
+  
+  --senegal-yellow: #FFF200;
+  --senegal-yellow-light: #FFFA4D;
+  --senegal-yellow-dark: #E6DB00;
+  
+  --senegal-red: #E01E24;
+  --senegal-red-light: #FF4C52;
+  --senegal-red-dark: #B8181C;
+  
+  /* Couleurs tertiaires (terre, sable, océan) */
+  --sahel-sand: #F4E4C1;
+  --atlantic-blue: #0077BE;
+  --teranga-orange: #FF6B35;
+  
+  /* UI Colors */
+  --primary: var(--senegal-green);
+  --primary-hover: var(--senegal-green-dark);
+  --secondary: var(--senegal-yellow);
+  --accent: var(--senegal-red);
+  --success: var(--senegal-green);
+  --warning: var(--senegal-yellow);
+  --error: var(--senegal-red);
+  --info: var(--atlantic-blue);
 }
 
 @theme inline {
+  /* Background & Foreground */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  
+  /* Couleurs Sénégal */
+  --color-senegal-green: var(--senegal-green);
+  --color-senegal-green-light: var(--senegal-green-light);
+  --color-senegal-green-dark: var(--senegal-green-dark);
+  
+  --color-senegal-yellow: var(--senegal-yellow);
+  --color-senegal-yellow-light: var(--senegal-yellow-light);
+  --color-senegal-yellow-dark: var(--senegal-yellow-dark);
+  
+  --color-senegal-red: var(--senegal-red);
+  --color-senegal-red-light: var(--senegal-red-light);
+  --color-senegal-red-dark: var(--senegal-red-dark);
+  
+  /* Couleurs tertiaires */
+  --color-sahel-sand: var(--sahel-sand);
+  --color-atlantic-blue: var(--atlantic-blue);
+  --color-teranga-orange: var(--teranga-orange);
+  
+  /* Primary (Vert Sénégal) */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  
+  /* Semantic colors */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+  
+  /* Fonts */
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-heading: 'Inter', system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0F1419;
+    --foreground: #F0F0F0;
+    
+    /* Couleurs Sénégal adaptées pour dark mode */
+    --senegal-green: #00A84D;
+    --senegal-yellow: #FFE600;
+    --senegal-red: #FF4C52;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Utilitaires CSS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Transitions fluides */
+* {
+  transition-property: color, background-color, border-color, transform, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Cards avec effet de profondeur */
+.card-elevated {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-elevated:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Boutons avec effet Sénégal */
+.btn-senegal {
+  background: linear-gradient(135deg, var(--senegal-green) 0%, var(--senegal-green-dark) 100%);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-senegal:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 132, 61, 0.3);
+}
+
+.btn-senegal:active {
+  transform: scale(0.98);
+}
+
+/* Gradient drapeau Sénégal */
+.gradient-senegal {
+  background: linear-gradient(90deg, var(--senegal-green) 33%, var(--senegal-yellow) 33%, var(--senegal-yellow) 66%, var(--senegal-red) 66%);
+}
+
+.gradient-senegal-soft {
+  background: linear-gradient(135deg, rgba(0, 132, 61, 0.1) 0%, rgba(255, 242, 0, 0.1) 50%, rgba(224, 30, 36, 0.1) 100%);
+}
+
+/* Pattern africain subtil */
+.pattern-african {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300843D' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Animations personnalisées */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes pulse-senegal {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 132, 61, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(0, 132, 61, 0);
+  }
+}
+
+.pulse-senegal {
+  animation: pulse-senegal 2s infinite;
+}
+
+/* Loading state */
+.loading-spinner {
+  border: 3px solid var(--sahel-sand);
+  border-top-color: var(--senegal-green);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Badges sénégalais */
+.badge-green {
+  background-color: var(--senegal-green);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.badge-yellow {
+  background-color: var(--senegal-yellow);
+  color: var(--foreground);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Responsive helpers */
+@media (max-width: 640px) {
+  .btn-senegal {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9375rem;
+  }
+}
+
+/* Focus states accessibles */
+*:focus-visible {
+  outline: 2px solid var(--senegal-green);
+  outline-offset: 2px;
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--sahel-sand);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--senegal-green);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--senegal-green-dark);
 }
