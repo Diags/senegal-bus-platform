@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bus.senegal.dto.TripRequest;
@@ -48,7 +49,27 @@ public class TripController {
         return ResponseEntity.ok(trips);
     }
     
-    @GetMapping("/{id}")
+    @GetMapping("/search")
+    public ResponseEntity<List<TripResponse>> searchTripsGet(
+            @RequestParam String departureCity,
+            @RequestParam String arrivalCity,
+            @RequestParam String departureDate,
+            @RequestParam(required = false, defaultValue = "1") Integer passengers) {
+        log.info("REST request to search trips (GET): {} -> {} on {}", 
+                departureCity, arrivalCity, departureDate);
+        
+        TripSearchRequest request = TripSearchRequest.builder()
+                .departureCity(departureCity)
+                .arrivalCity(arrivalCity)
+                .departureDate(java.time.LocalDate.parse(departureDate))
+                .passengers(passengers)
+                .build();
+        
+        List<TripResponse> trips = tripService.searchTrips(request);
+        return ResponseEntity.ok(trips);
+    }
+    
+    @GetMapping("/{id:\\d+}")
     public ResponseEntity<TripResponse> getTrip(@PathVariable Long id) {
         log.info("REST request to get trip: {}", id);
         TripResponse response = tripService.getTripById(id);
