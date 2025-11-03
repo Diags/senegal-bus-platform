@@ -54,12 +54,20 @@ public class BookingService {
             throw new BookingException("Trip is not available for booking");
         }
         
-        // Validate seat
-        Seat seat = seatRepository.findById(request.getSeatId())
-                .orElseThrow(() -> new ResourceNotFoundException("Seat", request.getSeatId()));
-        
-        if (seat.getStatus() != Seat.SeatStatus.AVAILABLE) {
-            throw new BookingException("Seat is not available");
+        // Get or auto-select seat
+        Seat seat;
+        if (request.getSeatId() != null) {
+            // Siège spécifique demandé
+            seat = seatRepository.findById(request.getSeatId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Seat", request.getSeatId()));
+            
+            if (seat.getStatus() != Seat.SeatStatus.AVAILABLE) {
+                throw new BookingException("Seat is not available");
+            }
+        } else {
+            // Auto-sélection du premier siège disponible
+            seat = seatRepository.findFirstAvailableSeatByTripId(trip.getId())
+                    .orElseThrow(() -> new BookingException("No available seats for this trip"));
         }
         
         if (trip.getAvailableSeats() < request.getNumberOfSeats()) {

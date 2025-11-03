@@ -30,14 +30,17 @@ export default function TripDetailsPage({ params }: { params: Promise<{ id: stri
   }
 
   const handleBooking = async () => {
-    // Pour le moment, on simule l'auth (l'utilisateur est toujours connecté)
-    // TODO: Implémenter vraie vérification auth avec Keycloak
+    // Vérifier si l'utilisateur est connecté
+    if (!isAuthenticated) {
+      signIn(`/trajets/${tripId}`)
+      return
+    }
     
     try {
       const booking = await createBooking.mutateAsync({
         tripId,
         numberOfSeats,
-        seatId: 1, // Pour le moment, on utilise un siège par défaut
+        // seatId est optionnel - le backend auto-sélectionne un siège disponible
       })
       
       router.push(`/reservations/${booking.id}/paiement`)

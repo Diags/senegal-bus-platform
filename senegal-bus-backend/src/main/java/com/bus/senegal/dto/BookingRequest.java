@@ -15,7 +15,7 @@ public class BookingRequest {
     @NotNull(message = "Trip ID is required")
     private Long tripId;
     
-    @NotNull(message = "Seat ID is required")
+    // Optional - will auto-select if not provided
     private Long seatId;
     
     @NotNull(message = "Number of seats is required")
