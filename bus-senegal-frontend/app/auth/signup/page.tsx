@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { pendingBooking } from '@/lib/pendingBooking'
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -54,7 +55,7 @@ export default function SignUpPage() {
     setIsLoading(true)
 
     // Simulation inscription (1 seconde)
-    setTimeout(() => {
+    setTimeout(async () => {
       // Créer la session directement (pour démo)
       const session = {
         user: {
@@ -68,7 +69,36 @@ export default function SignUpPage() {
 
       localStorage.setItem('bus_senegal_session', JSON.stringify(session))
 
-      // Redirect vers returnUrl ou dashboard
+      // Vérifier si une réservation est en attente
+      const pending = pendingBooking.get()
+      
+      if (pending) {
+        // Créer la réservation automatiquement
+        try {
+          const response = await fetch('http://localhost:8080/api/bookings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              tripId: pending.tripId,
+              numberOfSeats: pending.numberOfSeats,
+            }),
+          })
+
+          if (response.ok) {
+            const booking = await response.json()
+            // Clear pending booking
+            pendingBooking.clear()
+            // Redirect direct vers paiement !
+            router.push(`/reservations/${booking.id}/paiement`)
+            setIsLoading(false)
+            return
+          }
+        } catch (error) {
+          console.error('Auto-booking failed:', error)
+        }
+      }
+
+      // Pas de pending booking - redirect normal
       const params = new URLSearchParams(window.location.search)
       const returnUrl = params.get('returnUrl') || '/dashboard'
       router.push(returnUrl)

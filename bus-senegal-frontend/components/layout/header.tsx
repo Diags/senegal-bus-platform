@@ -41,13 +41,22 @@ export function Header() {
               🏢 Compagnies
             </Link>
             {isAuthenticated && (
-              <Link 
-                href="/mes-reservations" 
-                className="px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-                style={{color: 'var(--foreground)'}}
-              >
-                📋 Mes Réservations
-              </Link>
+              <>
+                <Link 
+                  href="/profile" 
+                  className="px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  style={{color: 'var(--foreground)'}}
+                >
+                  👤 Mon Compte
+                </Link>
+                <Link 
+                  href="/mes-reservations" 
+                  className="px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  style={{color: 'var(--foreground)'}}
+                >
+                  📋 Mes Réservations
+                </Link>
+              </>
             )}
           </nav>
         </div>

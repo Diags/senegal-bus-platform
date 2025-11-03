@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { formatCurrency } from '@/lib/utils'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { pendingBooking } from '@/lib/pendingBooking'
 import Link from 'next/link'
 
 export default function TripDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -32,6 +33,13 @@ export default function TripDetailsPage({ params }: { params: Promise<{ id: stri
   const handleBooking = async () => {
     // Vérifier si l'utilisateur est connecté
     if (!isAuthenticated) {
+      // Stocker l'intention de réservation
+      pendingBooking.set({
+        tripId,
+        numberOfSeats,
+        returnUrl: `/trajets/${tripId}`,
+      })
+      // Rediriger vers connexion
       signIn(`/trajets/${tripId}`)
       return
     }

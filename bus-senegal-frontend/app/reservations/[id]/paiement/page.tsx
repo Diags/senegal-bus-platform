@@ -27,7 +27,8 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
     // Simulation du paiement (2 secondes)
     setTimeout(() => {
       setIsProcessing(false)
-      router.push(`/reservations/${bookingId}/confirmation`)
+      // Redirect vers profil avec bookingId highlighted
+      router.push(`/profile?newBooking=${bookingId}`)
     }, 2000)
   }
 
