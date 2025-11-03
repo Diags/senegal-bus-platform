@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 export default function SignInPage() {
@@ -17,23 +16,27 @@ export default function SignInPage() {
     setIsLoading(true)
     setError('')
 
-    try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      })
-
-      if (result?.error) {
-        setError('Email ou mot de passe incorrect')
-      } else {
-        router.push('/dashboard')
+    // Simulation connexion (1 seconde)
+    setTimeout(() => {
+      // Créer la session dans localStorage
+      const session = {
+        user: {
+          id: 1,
+          email,
+          firstName: email.split('@')[0],
+          lastName: 'User',
+        },
+        isAuthenticated: true,
       }
-    } catch (err) {
-      setError('Une erreur est survenue')
-    } finally {
+
+      localStorage.setItem('bus_senegal_session', JSON.stringify(session))
+
+      // Redirect vers returnUrl ou dashboard
+      const params = new URLSearchParams(window.location.search)
+      const returnUrl = params.get('returnUrl') || '/dashboard'
+      router.push(returnUrl)
       setIsLoading(false)
-    }
+    }, 1000)
   }
 
   return (

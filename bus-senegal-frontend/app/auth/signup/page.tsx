@@ -53,24 +53,27 @@ export default function SignUpPage() {
 
     setIsLoading(true)
 
-    try {
-      // TODO: Appel API pour créer le compte
-      const response = await fetch('http://localhost:8080/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
-
-      if (response.ok) {
-        router.push('/auth/signin?registered=true')
-      } else {
-        setError('Erreur lors de l\'inscription. Email peut-être déjà utilisé.')
+    // Simulation inscription (1 seconde)
+    setTimeout(() => {
+      // Créer la session directement (pour démo)
+      const session = {
+        user: {
+          id: 1,
+          email: formData.email,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        },
+        isAuthenticated: true,
       }
-    } catch (err) {
-      setError('Une erreur est survenue. Réessayez plus tard.')
-    } finally {
+
+      localStorage.setItem('bus_senegal_session', JSON.stringify(session))
+
+      // Redirect vers returnUrl ou dashboard
+      const params = new URLSearchParams(window.location.search)
+      const returnUrl = params.get('returnUrl') || '/dashboard'
+      router.push(returnUrl)
       setIsLoading(false)
-    }
+    }, 1000)
   }
 
   const strengthColors = ['#EF4444', '#F59E0B', '#FBBF24', '#10B981']
