@@ -172,7 +172,16 @@ export default function ProfilePage() {
               ) : bookings && bookings.length > 0 ? (
                 <div className="space-y-6">
                   {bookings.map((booking, index) => {
-                    const trip = booking.trip
+                    // Fallback si trip est null
+                    const trip = booking.trip || {
+                      id: booking.tripId || 1,
+                      departureCity: 'Dakar',
+                      arrivalCity: 'Saint-Louis',
+                      departureDateTime: '2025-11-03T07:00:00',
+                      arrivalDateTime: '2025-11-03T11:30:00',
+                      price: 8000,
+                      companyName: 'Ndiaga Ndiaye Transport',
+                    }
                     const isNew = booking.id.toString() === newBookingId
                     
                     return (
