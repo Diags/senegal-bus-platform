@@ -26,8 +26,15 @@ export default function SignInPage() {
           email,
           firstName: email.split('@')[0],
           lastName: 'User',
+          role: 'CLIENT', // Par défaut CLIENT
         },
         isAuthenticated: true,
+      }
+      
+      // Si email contient 'admin' → role ADMIN
+      if (email.includes('admin')) {
+        session.user.role = 'ADMIN'
+        session.user.id = 2
       }
 
       localStorage.setItem('bus_senegal_session', JSON.stringify(session))
@@ -61,10 +68,19 @@ export default function SignInPage() {
         }
       }
 
-      // Pas de pending booking - redirect normal
+      // Pas de pending booking - redirect selon rôle
       const params = new URLSearchParams(window.location.search)
-      const returnUrl = params.get('returnUrl') || '/dashboard'
-      router.push(returnUrl)
+      const returnUrl = params.get('returnUrl')
+      
+      if (returnUrl) {
+        router.push(returnUrl)
+      } else {
+        // Redirect intelligent selon rôle
+        const destination = session.user.role === 'ADMIN' 
+          ? '/dashboard/admin' 
+          : '/profile'
+        router.push(destination)
+      }
       setIsLoading(false)
     }, 1000)
   }
