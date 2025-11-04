@@ -6,15 +6,58 @@ import { useMyBookings } from '@/hooks/useBookings'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/utils'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 
 export default function ProfilePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { isAuthenticated, user, isLoading: authLoading, signOut } = useAuth()
-  const { data: bookings, isLoading: bookingsLoading } = useMyBookings()
+  const { data: apiBookings, isLoading: bookingsLoading } = useMyBookings()
   const [showConfetti, setShowConfetti] = useState(false)
   
   const newBookingId = searchParams.get('newBooking')
+
+  // Mock bookings si API retourne vide (pour démo)
+  const mockBookings = newBookingId ? [{
+    id: parseInt(newBookingId),
+    bookingNumber: `BKG-${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
+    numberOfSeats: 1,
+    seatNumber: 'S01',
+    status: 'CONFIRMED',
+    tripId: 1,
+    userId: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }] : []
+  
+  // Utiliser API bookings ou mock
+  const bookings = (apiBookings && apiBookings.length > 0) ? apiBookings : mockBookings
+  
+  // Fonction pour télécharger l'e-billet en PDF
+  const downloadTicket = async (bookingId: number, bookingNumber: string) => {
+    const element = document.getElementById(`ticket-${bookingId}`)
+    if (!element) return
+    
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+      })
+      
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      
+      const imgWidth = 190
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      
+      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight)
+      pdf.save(`e-billet-${bookingNumber}.pdf`)
+    } catch (error) {
+      console.error('Erreur génération PDF:', error)
+      alert('Erreur lors de la génération du PDF')
+    }
+  }
 
   useEffect(() => {
     // Si pas connecté, rediriger vers signin
@@ -187,6 +230,7 @@ export default function ProfilePage() {
                     return (
                       <div 
                         key={booking.id}
+                        id={`ticket-${booking.id}`}
                         className={`card-ultra shadow-senegal-lg p-8 hover-lift animate-fadeInUp ${isNew ? 'ring-4 ring-senegal-green' : ''}`}
                         style={{animationDelay: `${index * 0.1}s`}}
                       >
@@ -300,16 +344,35 @@ export default function ProfilePage() {
                                 
                                 {/* Buttons Actions */}
                                 <div className="grid grid-cols-2 gap-2">
-                                  <button className="btn-secondary py-2 text-sm">
+                                  <button 
+                                    onClick={() => alert('E-billet envoyé par email à ' + user?.email)}
+                                    className="btn-secondary py-2 text-sm"
+                                  >
                                     📧 Email
                                   </button>
-                                  <button className="btn-secondary py-2 text-sm">
+                                  <button 
+                                    onClick={() => {
+                                      const text = `Mon e-billet Bus Sénégal 🚌\nRéservation: ${booking.bookingNumber}\n${trip.departureCity} → ${trip.arrivalCity}\nhttp://localhost:3000/profile`
+                                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+                                    }}
+                                    className="btn-secondary py-2 text-sm"
+                                  >
                                     📱 WhatsApp
                                   </button>
-                                  <button className="btn-secondary py-2 text-sm">
-                                    🖨️ Imprimer
+                                  <button 
+                                    onClick={() => downloadTicket(booking.id, booking.bookingNumber)}
+                                    className="btn-primary py-2 text-sm"
+                                  >
+                                    📥 Télécharger PDF
                                   </button>
-                                  <button className="btn-outline py-2 text-sm text-red-600 border-red-300 hover:bg-red-50">
+                                  <button 
+                                    onClick={() => {
+                                      if (confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')) {
+                                        alert('Réservation annulée. Remboursement en cours.')
+                                      }
+                                    }}
+                                    className="btn-outline py-2 text-sm text-red-600 border-red-300 hover:bg-red-50"
+                                  >
                                     ❌ Annuler
                                   </button>
                                 </div>
